@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Title + meta populated from content.json -->
+    <title>Loading…</title>
+    <meta name="description" content="" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- ─── NAV ─────────────────────────────────────────── -->
+    <nav id="navbar">
+        <div class="nav-inner">
+            <span class="nav-logo" id="navLogo"></span>
+            <ul class="nav-links" id="navLinks"></ul>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle light / dark mode" title="Toggle theme">
+                <svg class="icon-moon" viewBox="0 0 24 24" fill="none">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <svg class="icon-sun" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.8" />
+                    <path
+                        d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ─── HERO ─────────────────────────────────────────── -->
+    <header class="hero" id="hero">
+        <div class="hero-bg"><canvas id="waveCanvas"></canvas></div>
+        <div class="hero-content reveal" id="heroContent"></div>
+        <div class="scroll-hint">
+            <span>scroll</span>
+            <div class="scroll-line"></div>
+        </div>
+    </header>
+
+    <!-- ─── ABSTRACT ──────────────────────────────────────── -->
+    <section class="section abstract-section" id="abstract">
+        <div class="container">
+            <div class="abstract-grid reveal" id="abstractGrid"></div>
+        </div>
+    </section>
+
+    <!-- ─── PIPELINE ──────────────────────────────────────── -->
+    <section class="section pipeline-section" id="pipeline">
+        <div class="container">
+            <h2 class="section-title reveal" id="pipelineTitle"></h2>
+            <p class="section-desc  reveal" id="pipelineDesc"></p>
+            <div class="pipeline-track reveal" id="pipelineTrack"></div>
+        </div>
+    </section>
+
+    <!-- ─── MODELS ────────────────────────────────────────── -->
+    <section class="section arch-section" id="models">
+        <div class="container">
+            <h2 class="section-title reveal" id="modelsTitle"></h2>
+            <p class="section-desc  reveal" id="modelsDesc"></p>
+            <div class="arch-tabs reveal" id="archTabs"></div>
+            <div id="modelPanels"></div>
+        </div>
+    </section>
+
+    <!-- ─── RESULTS ───────────────────────────────────────── -->
+    <section class="section results-section" id="results">
+        <div class="container">
+            <h2 class="section-title reveal" id="resultsTitle"></h2>
+            <p class="section-desc  reveal" id="resultsDesc"></p>
+            <div class="results-table-wrapper reveal" id="resultsTable"></div>
+        </div>
+    </section>
+
+    <!-- ─── SAMPLES ───────────────────────────────────────── -->
+    <section class="section samples-section" id="samples">
+        <div class="container">
+            <h2 class="section-title reveal" id="samplesTitle"></h2>
+            <p class="section-desc  reveal" id="samplesDesc"></p>
+            <div class="samples-grid reveal" id="samplesGrid"></div>
+        </div>
+    </section>
+
+    <!-- ─── FOOTER ────────────────────────────────────────── -->
+    <footer class="footer">
+        <div class="container footer-inner" id="footerInner"></div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

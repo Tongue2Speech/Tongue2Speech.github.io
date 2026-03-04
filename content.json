@@ -1,0 +1,614 @@
+{
+  "site": {
+    "title": "Tongue2Speech — Spatiotemporal Transformer",
+    "description": "Silent speech synthesis from tongue ultrasound videos using explicit 3D encoding and multi-layer Transformers.",
+    "logo": "U2S"
+  },
+  "nav": {
+    "links": [
+      {
+        "label": "Pipeline",
+        "href": "#pipeline"
+      },
+      {
+        "label": "Models",
+        "href": "#models"
+      },
+      {
+        "label": "Results",
+        "href": "#results"
+      },
+      {
+        "label": "Samples",
+        "href": "#samples"
+      }
+    ]
+  },
+  "hero": {
+    "badge": "Research Paper",
+    "title": "Tongue2Speech",
+    "subtitle": "Real-time speech synthesis from tongue ultrasound videos via spatiotemporal transformers",
+    "chips": [
+      {
+        "label": "3D-CNN",
+        "highlight": false
+      },
+      {
+        "label": "Transformer",
+        "highlight": false
+      },
+      {
+        "label": "HiFi-GAN",
+        "highlight": false
+      }
+    ],
+    "buttons": [
+      {
+        "label": "Explore Pipeline",
+        "href": "#pipeline",
+        "style": "primary"
+      },
+      {
+        "label": "View Results",
+        "href": "#results",
+        "style": "ghost"
+      }
+    ]
+  },
+  "abstract": {
+    "sectionLabel": "Abstract",
+    "paragraphs": [
+      "Ultrasound-to-Speech aims to synthesize intelligible speech from tongue ultrasound video for silent speech interfaces. Prior systems rely primarily on convolutional or recurrent architectures and are typically evaluated using spectral distortion metrics that poorly reflect intelligibility. We introduce <strong>Tongue2Speech</strong>, a lightweight architecture combining explicit 3D spatio-temporal encoding with a multi-layer Transformer to model long-range articulatory dynamics.",
+      "Evaluated on the English TaL corpus using ASR-based word error rate, <strong>Tongue2Speech</strong> achieves <strong>23.36% WER</strong> in single-speaker and <strong>31.64% WER</strong> in multi-speaker settings across six strong baselines. We further show that spectral MSE diverges from lexical accuracy, and that speaker-specific fine-tuning substantially restores intelligibility for unseen users."
+    ],
+    "stats": [
+      {
+        "value": 5,
+        "animated": true,
+        "label": "Model Variants",
+        "delay": 0
+      },
+      {
+        "value": 2,
+        "animated": true,
+        "label": "Baselines",
+        "delay": 100
+      },
+      {
+        "value": "23.36%",
+        "animated": false,
+        "label": "WER (Single-Speaker)",
+        "delay": 200
+      },
+      {
+        "value": "HiFi-GAN",
+        "animated": false,
+        "label": "Vocoder",
+        "delay": 300
+      }
+    ]
+  },
+  "pipeline": {
+    "sectionTitle": "Processing Pipeline",
+    "sectionDesc": "From raw ultrasound scanlines to synthesised speech in four stages.",
+    "steps": [
+      {
+        "id": "ps-1",
+        "tag": "Step 01",
+        "title": "Raw Scanlines",
+        "body": "Phased-array ultrasound probe captures <strong>64 scan lines × 842 pixels/vector</strong> at high frame-rate, stored as raw binary (uint8).",
+        "arrowLabel": "CUDA Accelerated",
+        "arrowGpu": true,
+        "icon": "scanlines"
+      },
+      {
+        "id": "ps-2",
+        "tag": "Step 02",
+        "title": "Wedge Transform",
+        "body": "Scanlines are geometrically mapped to <em>fan-shaped (wedge) video frames</em> mimicking the physical ultrasound beam geometry, via CUDA-accelerated bilinear interpolation.",
+        "arrowLabel": "Tongue2Speech Encoder",
+        "arrowGpu": false,
+        "icon": "wedge"
+      },
+      {
+        "id": "ps-3",
+        "tag": "Step 03",
+        "title": "Mel-Spectrogram",
+        "body": "The model ingests wedge video tensors <code>(B, 1, T, H, W)</code> and predicts <strong>80-bin mel-spectrograms</strong> <code>(B, T, 80)</code> via L1-trained encoder–transformer–projection.",
+        "arrowLabel": "Neural Vocoder",
+        "arrowGpu": false,
+        "icon": "spectrogram"
+      },
+      {
+        "id": "ps-4",
+        "tag": "Step 04",
+        "title": "HiFi-GAN Synthesis",
+        "body": "A pre-trained <strong>HiFi-GAN</strong> vocoder converts the predicted mel-spectrogram into a full-bandwidth waveform at <em>48 kHz</em>, producing natural-sounding speech.",
+        "arrowLabel": null,
+        "arrowGpu": false,
+        "icon": "speaker"
+      }
+    ]
+  },
+  "models": {
+    "sectionTitle": "Model Architectures",
+    "sectionDesc": "Two baselines and five variants, culminating in our proposed Tongue2Speech model.",
+    "tabs": [
+      {
+        "id": "baselines",
+        "label": "Baselines"
+      },
+      {
+        "id": "variants",
+        "label": "Our Variants"
+      }
+    ],
+    "baselines": [
+      {
+        "tag": "Baseline",
+        "tagClass": "tag-baseline",
+        "name": "Conformer",
+        "code": "Conformer",
+        "conference": "Interspeech 2025",
+        "arxivLink": "https://arxiv.org/pdf/2506.03831",
+        "archBlocks": [
+          "Conformer",
+          "→",
+          "2x BiLSTM",
+          "→",
+          "Linear"
+        ],
+        "archCompact": false,
+        "highlight": false,
+        "details": [
+          {
+            "label": "Type",
+            "value": "Speech encoder baseline",
+            "type": "em"
+          },
+          {
+            "label": "Input",
+            "value": "Ultrasound frames",
+            "type": "em"
+          },
+          {
+            "label": "Temporal",
+            "value": "2x BiLSTM",
+            "type": "code"
+          }
+        ],
+        "delay": 0
+      },
+      {
+        "tag": "Baseline",
+        "tagClass": "tag-baseline",
+        "name": "STN",
+        "code": "Spatial Transformer Network",
+        "conference": "Interspeech 2023",
+        "arxivLink": "https://arxiv.org/pdf/2305.19130",
+        "archBlocks": [
+          "STN Localiser",
+          "→",
+          "Grid Sample",
+          "→",
+          "CNN",
+          "→",
+          "Linear"
+        ],
+        "archCompact": false,
+        "highlight": false,
+        "details": [
+          {
+            "label": "Type",
+            "value": "Spatial transformation baseline",
+            "type": "em"
+          },
+          {
+            "label": "Input",
+            "value": "Ultrasound frames",
+            "type": "em"
+          },
+          {
+            "label": "Temporal",
+            "value": "CNN (post-STN)",
+            "type": "code"
+          }
+        ],
+        "delay": 100
+      }
+    ],
+    "variants": [
+      {
+        "tag": "Variant",
+        "tagClass": "tag-variant",
+        "name": "2D-CNN + BiLSTM",
+        "code": "UtM2DConvLSTM",
+        "archBlocks": [
+          "Conv2D Encoder",
+          "→",
+          "BiLSTM",
+          "→",
+          "Linear"
+        ],
+        "archCompact": true,
+        "highlight": false,
+        "details": [
+          {
+            "label": "Input",
+            "value": "(B·T, 1, 64, 64)",
+            "type": "code"
+          },
+          {
+            "label": "Channels",
+            "value": "1→32→64→128→D",
+            "type": "code"
+          },
+          {
+            "label": "Temporal",
+            "value": "3-layer BiLSTM",
+            "type": "code"
+          }
+        ],
+        "delay": 0
+      },
+      {
+        "tag": "Variant",
+        "tagClass": "tag-variant",
+        "name": "3D-CNN",
+        "code": "UtM3DConv",
+        "archBlocks": [
+          "3D Conv Encoder",
+          "→",
+          "AvgPool3d",
+          "→",
+          "Linear"
+        ],
+        "archCompact": true,
+        "highlight": false,
+        "details": [
+          {
+            "label": "Input",
+            "value": "(B, 1, T, 64, 64)",
+            "type": "code"
+          },
+          {
+            "label": "Stride",
+            "value": "(1, 2, 2) — spatial only",
+            "type": "code"
+          },
+          {
+            "label": "Temporal",
+            "value": "None (implicit in 3D)",
+            "type": "em"
+          }
+        ],
+        "delay": 60
+      },
+      {
+        "tag": "Variant",
+        "tagClass": "tag-variant",
+        "name": "3D-CNN + BiLSTM",
+        "code": "UtM3DConvLSTM",
+        "archBlocks": [
+          "3D Enc",
+          "→",
+          "BiLSTM",
+          "→",
+          "MLP"
+        ],
+        "archCompact": true,
+        "highlight": false,
+        "details": [
+          {
+            "label": "Encoder",
+            "value": "3× Conv3d blocks",
+            "type": "code"
+          },
+          {
+            "label": "Channels",
+            "value": "1→32→64→128",
+            "type": "code"
+          },
+          {
+            "label": "LSTM",
+            "value": "2-layer BiLSTM h=256",
+            "type": "code"
+          }
+        ],
+        "delay": 120
+      },
+      {
+        "tag": "Variant",
+        "tagClass": "tag-variant",
+        "name": "3D-CNN + BiLSTM (Skip)",
+        "code": "UtM3DConvLSTMSkip",
+        "archBlocks": [
+          "3D Enc<br><small>+ skip</small>",
+          "→",
+          "BiLSTM",
+          "→",
+          "MLP"
+        ],
+        "archCompact": true,
+        "highlight": false,
+        "details": [
+          {
+            "label": "Skip",
+            "value": "U-Net style skip connections",
+            "type": "em"
+          },
+          {
+            "label": "Fusion",
+            "value": "128×3 → 128 via 1×1×1",
+            "type": "code"
+          },
+          {
+            "label": "Align",
+            "value": "Trilinear interpolation",
+            "type": "em"
+          }
+        ],
+        "delay": 180
+      },
+      {
+        "tag": "Proposed ★",
+        "tagClass": "tag-proposed",
+        "name": "Tongue2Speech",
+        "code": "UtM3DConvTransformer",
+        "archBlocks": [
+          "3D Enc",
+          "→",
+          "Sinusoidal PE",
+          "→",
+          "MHSA"
+        ],
+        "archCompact": true,
+        "highlight": true,
+        "details": [
+          {
+            "label": "Encoder",
+            "value": "4× Conv3d→D",
+            "type": "code"
+          },
+          {
+            "label": "PE",
+            "value": "Sinusoidal",
+            "type": "em"
+          },
+          {
+            "label": "Attention",
+            "value": "Self-Attention (SDPA)",
+            "type": "em"
+          }
+        ],
+        "delay": 240
+      }
+    ]
+  },
+  "results": {
+    "sectionTitle": "Results",
+    "sectionDesc": "WER (↓) evaluated by OpenAI Whisper Medium ASR on synthesised output. Lower is better.",
+    "singleSpeaker": {
+      "title": "Single-Speaker (TaL1)",
+      "desc": "One native English male speaker across 5 sessions (Day 2–6). Day 1 excluded due to documented sync issues.",
+      "tableNote": "WER (%) | MSE on mel spectrograms.",
+      "rows": [
+        {
+          "model": "Conformer",
+          "best": false,
+          "type": "Baseline",
+          "typeClass": "baseline",
+          "rowClass": "row-baseline",
+          "temporal": "Conformer + 2× BiLSTM",
+          "werLabel": "99.26%",
+          "mseLabel": "1.819",
+          "barPct": "99%",
+          "barTop": false
+        },
+        {
+          "model": "STN",
+          "best": false,
+          "type": "Baseline",
+          "typeClass": "baseline",
+          "rowClass": "row-baseline",
+          "temporal": "Spatial Transformer + CNN",
+          "werLabel": "99.08%",
+          "mseLabel": "1.877",
+          "barPct": "99%",
+          "barTop": false
+        },
+        {
+          "model": "UtM2DConvLSTM",
+          "best": false,
+          "type": "Variant",
+          "typeClass": "variant",
+          "rowClass": "",
+          "temporal": "2D-CNN + BiLSTM",
+          "werLabel": "60.29%",
+          "mseLabel": "1.417",
+          "barPct": "60%",
+          "barTop": false
+        },
+        {
+          "model": "UtM3DConv",
+          "best": false,
+          "type": "Variant",
+          "typeClass": "variant",
+          "rowClass": "",
+          "temporal": "3D-CNN (implicit)",
+          "werLabel": "99.26%",
+          "mseLabel": "3.155",
+          "barPct": "99%",
+          "barTop": false
+        },
+        {
+          "model": "UtM3DConvLSTM",
+          "best": false,
+          "type": "Variant",
+          "typeClass": "variant",
+          "rowClass": "",
+          "temporal": "3D-CNN + BiLSTM",
+          "werLabel": "36.46%",
+          "mseLabel": "0.906",
+          "barPct": "36%",
+          "barTop": false
+        },
+        {
+          "model": "UtM3DConvLSTMSkip",
+          "best": false,
+          "type": "Variant",
+          "typeClass": "variant",
+          "rowClass": "",
+          "temporal": "3D-CNN + BiLSTM + Skip",
+          "werLabel": "24.15%",
+          "mseLabel": "0.793",
+          "barPct": "24%",
+          "barTop": false
+        },
+        {
+          "model": "Tongue2Speech",
+          "best": true,
+          "type": "Proposed",
+          "typeClass": "proposed",
+          "rowClass": "row-best row-top",
+          "temporal": "3D-CNN + Self-Attn Transformer",
+          "werLabel": "23.36%",
+          "mseLabel": "0.798",
+          "barPct": "23%",
+          "barTop": true
+        }
+      ]
+    },
+    "multiSpeaker": {
+      "title": "Multi-Speaker (TaL80)",
+      "desc": "81 native English speakers with anatomical and probe-placement variability.",
+      "generalized": {
+        "label": "Generalized Training (95/5 utterance split)",
+        "tableNote": "All 81 speakers pooled, 95% train / 5% test at utterance level.",
+        "rows": [
+          {
+            "model": "UtM3DConvLSTM",
+            "best": false,
+            "type": "Variant",
+            "typeClass": "variant",
+            "rowClass": "",
+            "temporal": "3D-CNN + BiLSTM",
+            "werLabel": "42.46%",
+            "mseLabel": "0.981",
+            "barPct": "42%",
+            "barTop": false
+          },
+          {
+            "model": "UtM3DConvLSTMSkip",
+            "best": false,
+            "type": "Variant",
+            "typeClass": "variant",
+            "rowClass": "",
+            "temporal": "3D-CNN + BiLSTM + Skip",
+            "werLabel": "33.23%",
+            "mseLabel": "0.863",
+            "barPct": "33%",
+            "barTop": false
+          },
+          {
+            "model": "Tongue2Speech",
+            "best": true,
+            "type": "Proposed",
+            "typeClass": "proposed",
+            "rowClass": "row-best row-top",
+            "temporal": "3D-CNN + Self-Attn Transformer",
+            "werLabel": "31.64%",
+            "mseLabel": "1.021",
+            "barPct": "31%",
+            "barTop": true
+          }
+        ]
+      },
+      "personalization": {
+        "label": "Speaker Personalization via Fine-Tuning",
+        "tableNote": "Model pre-trained on 77 speakers, fine-tuned 20 epochs on each held-out speaker's data.",
+        "rows": [
+          {
+            "model": "Speaker 78",
+            "best": false,
+            "type": "Tongue2Speech",
+            "typeClass": "proposed",
+            "rowClass": "",
+            "werLabel": "33.00%",
+            "mseLabel": "1.032",
+            "barPct": "33%",
+            "barTop": false
+          },
+          {
+            "model": "Speaker 79",
+            "best": false,
+            "type": "Tongue2Speech",
+            "typeClass": "proposed",
+            "rowClass": "",
+            "werLabel": "46.07%",
+            "mseLabel": "1.047",
+            "barPct": "46%",
+            "barTop": false
+          },
+          {
+            "model": "Speaker 80",
+            "best": true,
+            "type": "Tongue2Speech",
+            "typeClass": "proposed",
+            "rowClass": "row-best row-top",
+            "werLabel": "27.62%",
+            "mseLabel": "0.866",
+            "barPct": "27%",
+            "barTop": true
+          },
+          {
+            "model": "Speaker 81",
+            "best": false,
+            "type": "Tongue2Speech",
+            "typeClass": "proposed",
+            "rowClass": "",
+            "werLabel": "37.87%",
+            "mseLabel": "1.039",
+            "barPct": "37%",
+            "barTop": false
+          }
+        ]
+      }
+    }
+  },
+  "samples": {
+    "sectionTitle": "Audio Samples",
+    "sectionDesc": "Synthesised speech from held-out utterances. Video and audio are synchronized via drift-correction logic.",
+    "items": [
+      {
+        "id": "s1",
+        "label": "Utterance 1",
+        "model": "Tongue2Speech",
+        "audio": "samples/sample1.wav",
+        "video": "samples/sample1.mp4",
+        "transcript": "\"Place the chair next to the window.\""
+      },
+      {
+        "id": "s2",
+        "label": "Utterance 2",
+        "model": "Tongue2Speech",
+        "audio": "samples/sample2.wav",
+        "video": "samples/sample2.mp4",
+        "transcript": "\"The quick brown fox jumps over the lazy dog.\""
+      },
+      {
+        "id": "s3",
+        "label": "Utterance 3",
+        "model": "Tongue2Speech",
+        "audio": "samples/sample3.wav",
+        "video": "samples/sample3.mp4",
+        "transcript": "\"She sells seashells by the seashore.\""
+      }
+    ]
+  },
+  "footer": {
+    "logo": "U2S",
+    "description": "Tongue2Speech Research",
+    "tagline": "48 kHz · 80-bin Mel · HiFi-GAN · AdamW · CosineAnneal"
+  }
+}
