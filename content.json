@@ -578,7 +578,7 @@
   },
   "samples": {
     "sectionTitle": "Audio Samples",
-    "sectionDesc": "Synthesised speech from held-out utterances. Video and audio are synchronized via drift-correction logic.",
+    "sectionDesc": "Synthesised speech from held-out utterances.",
     "items": [
       {
         "id": "s1",

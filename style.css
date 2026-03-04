@@ -585,7 +585,7 @@ code {
   align-items: stretch;
   gap: 0;
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding: 12px 24px;
 }
 
 @media (max-width: 900px) {
