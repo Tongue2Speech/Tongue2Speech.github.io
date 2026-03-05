@@ -518,7 +518,7 @@
             "rowClass": "row-best row-top",
             "temporal": "3D-CNN + Self-Attn Transformer",
             "werLabel": "31.64%",
-            "mseLabel": "1.021",
+            "mseLabel": "0.851",
             "barPct": "31%",
             "barTop": true
           }
@@ -535,7 +535,7 @@
             "typeClass": "proposed",
             "rowClass": "",
             "werLabel": "33.00%",
-            "mseLabel": "1.032",
+            "mseLabel": "0.860",
             "barPct": "33%",
             "barTop": false
           },
@@ -546,7 +546,7 @@
             "typeClass": "proposed",
             "rowClass": "",
             "werLabel": "46.07%",
-            "mseLabel": "1.047",
+            "mseLabel": "1.013",
             "barPct": "46%",
             "barTop": false
           },
@@ -557,7 +557,7 @@
             "typeClass": "proposed",
             "rowClass": "row-best row-top",
             "werLabel": "27.62%",
-            "mseLabel": "0.866",
+            "mseLabel": "0.852",
             "barPct": "27%",
             "barTop": true
           },
@@ -568,7 +568,7 @@
             "typeClass": "proposed",
             "rowClass": "",
             "werLabel": "37.87%",
-            "mseLabel": "1.039",
+            "mseLabel": "0.914",
             "barPct": "37%",
             "barTop": false
           }

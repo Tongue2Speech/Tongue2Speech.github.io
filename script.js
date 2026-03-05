@@ -12,17 +12,17 @@
   const btn = document.getElementById('themeToggle');
 
   const saved = localStorage.getItem(STORAGE) || 'dark';
-  root.setAttribute('data-theme', saved);
+  root.setAttribute('data-theme', 'light');
 
   if (!btn) return;
   btn.addEventListener('click', () => {
-    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'light';
     root.setAttribute('data-theme', next);
     localStorage.setItem(STORAGE, next);
 
-    btn.style.transition = 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1), border-color 0.3s, color 0.3s';
-    btn.style.transform = 'rotate(360deg)';
-    setTimeout(() => { btn.style.transform = ''; btn.style.transition = ''; }, 450);
+    // btn.style.transition = 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1), border-color 0.3s, color 0.3s';
+    // btn.style.transform = 'rotate(360deg)';
+    // setTimeout(() => { btn.style.transform = ''; btn.style.transition = ''; }, 450);
   });
 })();
 

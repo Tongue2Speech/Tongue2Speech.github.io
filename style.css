@@ -207,11 +207,11 @@ code {
   padding: 0;
 }
 
-.theme-toggle:hover {
+/* .theme-toggle:hover {
   border-color: var(--accent);
   color: var(--accent);
   transform: rotate(20deg);
-}
+} */
 
 .theme-toggle svg {
   width: 16px;
