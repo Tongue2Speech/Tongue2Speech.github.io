@@ -25,7 +25,7 @@
     ]
   },
   "hero": {
-    "badge": "Research Paper",
+    "badge": "Anonymous Interspeech Submission 2026",
     "title": "Tongue2Speech",
     "subtitle": "Real-time speech synthesis from tongue ultrasound videos via spatiotemporal transformers",
     "chips": [
@@ -59,7 +59,7 @@
     "sectionLabel": "Abstract",
     "paragraphs": [
       "Ultrasound-to-Speech aims to synthesize intelligible speech from tongue ultrasound video for silent speech interfaces. Prior systems rely primarily on convolutional or recurrent architectures and are typically evaluated using spectral distortion metrics that poorly reflect intelligibility. We introduce <strong>Tongue2Speech</strong>, a lightweight architecture combining explicit 3D spatio-temporal encoding with a multi-layer Transformer to model long-range articulatory dynamics.",
-      "Evaluated on the English TaL corpus using ASR-based word error rate, <strong>Tongue2Speech</strong> achieves <strong>23.36% WER</strong> in single-speaker and <strong>31.64% WER</strong> in multi-speaker settings across six strong baselines. We further show that spectral MSE diverges from lexical accuracy, and that speaker-specific fine-tuning substantially restores intelligibility for unseen users."
+      "Evaluated on the English TaL corpus using ASR-based word error rate, <strong>Tongue2Speech</strong> achieves <strong>15.93% WER</strong> in single-speaker and <strong>31.64% WER</strong> in multi-speaker settings across six strong baselines. We further show that spectral MSE diverges from lexical accuracy, and that speaker-specific fine-tuning substantially restores intelligibility for unseen users."
     ],
     "stats": [
       {
@@ -75,7 +75,7 @@
         "delay": 100
       },
       {
-        "value": "23.36%",
+        "value": "15.93%",
         "animated": false,
         "label": "WER (Single-Speaker)",
         "delay": 200
@@ -472,9 +472,9 @@
           "typeClass": "proposed",
           "rowClass": "row-best row-top",
           "temporal": "3D-CNN + Self-Attn Transformer",
-          "werLabel": "23.36%",
-          "mseLabel": "0.798",
-          "barPct": "23%",
+          "werLabel": "15.93%",
+          "mseLabel": "0.594",
+          "barPct": "16%",
           "barTop": true
         }
       ]
@@ -578,37 +578,86 @@
   },
   "samples": {
     "sectionTitle": "Audio Samples",
-    "sectionDesc": "Synthesised speech from held-out utterances.",
+    "sectionDesc": "Each card shows the wedge-transformed ultrasound video alongside synthesised speech from every model. Play any audio to hear the output.",
+    "audioSuffix": "_aud_generated_e2e.wav",
+    "models": [
+      {
+        "key": "conformer",
+        "label": "Conformer",
+        "typeClass": "baseline"
+      },
+      {
+        "key": "stn",
+        "label": "STN",
+        "typeClass": "baseline"
+      },
+      {
+        "key": "2d_cnn_lstm",
+        "label": "2D-CNN + BiLSTM",
+        "typeClass": "variant"
+      },
+      {
+        "key": "3d_cnn",
+        "label": "3D-CNN",
+        "typeClass": "variant"
+      },
+      {
+        "key": "3d_cnn_lstm",
+        "label": "3D-CNN + BiLSTM",
+        "typeClass": "variant"
+      },
+      {
+        "key": "3d_cnn_lstm_skip",
+        "label": "3D-CNN + BiLSTM (Skip)",
+        "typeClass": "variant"
+      },
+      {
+        "key": "3d_cnn_transformer",
+        "label": "Tongue2Speech ★",
+        "typeClass": "proposed"
+      }
+    ],
     "items": [
       {
         "id": "s1",
         "label": "Utterance 1",
-        "model": "Tongue2Speech",
-        "audio": "samples/sample1.wav",
-        "video": "samples/sample1.mp4",
-        "transcript": "\"Place the chair next to the window.\""
+        "utteranceId": "d2_068",
+        "video": "samples/wedges/d2_068_aud.mp4",
+        "transcript": "Penguins live near the icy Antarctic."
       },
       {
         "id": "s2",
         "label": "Utterance 2",
-        "model": "Tongue2Speech",
-        "audio": "samples/sample2.wav",
-        "video": "samples/sample2.mp4",
-        "transcript": "\"The quick brown fox jumps over the lazy dog.\""
+        "utteranceId": "d3_333",
+        "video": "samples/wedges/d3_333_aud.mp4",
+        "transcript": "The small boy put the worm on the hook."
       },
       {
         "id": "s3",
         "label": "Utterance 3",
-        "model": "Tongue2Speech",
-        "audio": "samples/sample3.wav",
-        "video": "samples/sample3.mp4",
-        "transcript": "\"She sells seashells by the seashore.\""
+        "utteranceId": "d4_358",
+        "video": "samples/wedges/d4_358_aud.mp4",
+        "transcript": "Steve collects rare and novel coins."
+      },
+      {
+        "id": "s4",
+        "label": "Utterance 4",
+        "utteranceId": "d5_159",
+        "video": "samples/wedges/d5_159_aud.mp4",
+        "transcript": "The thick elm forest was nearly overwhelmed by Dutch Elm Disease."
+      },
+      {
+        "id": "s5",
+        "label": "Utterance 5",
+        "utteranceId": "d6_279",
+        "video": "samples/wedges/d6_279_aud.mp4",
+        "transcript": "Then the envious mother cried out, \"Will you fare better than we do?\""
       }
     ]
   },
   "footer": {
     "logo": "U2S",
     "description": "Tongue2Speech Research",
-    "tagline": "48 kHz · 80-bin Mel · HiFi-GAN · AdamW · CosineAnneal"
+    "tagline": ""
   }
 }

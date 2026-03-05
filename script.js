@@ -272,89 +272,180 @@ function renderSamples(data) {
   document.getElementById('samplesTitle').textContent = data.sectionTitle;
   document.getElementById('samplesDesc').innerHTML = data.sectionDesc;
 
-  const cards = data.items.map((s, i) => `
-    <div class="sample-card" id="${s.id}">
-      <div class="sample-header">
-        <span class="sample-label">${s.label}</span>
-        <span class="sample-model">${s.model}</span>
-      </div>
+  const suffix = data.audioSuffix; // "_aud_generated_e2e.wav"
 
-      <div class="sample-media">
-        <video class="sample-video" id="vid${i + 1}"
-          src="${s.video}" muted playsinline preload="metadata"
-          aria-label="Ultrasound video for ${s.label}">
-        </video>
-        <div class="video-overlay" id="overlay${i + 1}">
-          <svg class="play-icon" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="1.2" fill="currentColor" fill-opacity="0.15"/>
-            <path d="M10 8.5l6 3.5-6 3.5V8.5z" fill="currentColor"/>
-          </svg>
+  const cards = data.items.map((s, i) => {
+    const audioRows = data.models.map((m, mi) => {
+      const src = `samples/${m.key}/${s.utteranceId}${suffix}`;
+      return `
+        <div class="audio-row" data-card="${s.id}" data-mi="${mi}">
+          <span class="audio-model-badge badge-type ${m.typeClass}">${m.label}</span>
+          <audio class="model-audio" id="aud_${s.id}_${mi}"
+            src="${src}" preload="none"
+            aria-label="${m.label} output for ${s.label}">
+          </audio>
+          <div class="custom-audio-ctrl" id="ctrl_${s.id}_${mi}">
+            <button class="aud-play-btn" aria-label="Play ${m.label}" data-id="aud_${s.id}_${mi}">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                <path class="icon-play"  d="M8 5.5l11 6.5-11 6.5V5.5z"/>
+                <path class="icon-pause" d="M6 5h4v14H6zm8 0h4v14h-4z" style="display:none"/>
+              </svg>
+            </button>
+            <div class="aud-progress-wrap">
+              <div class="aud-progress-bar">
+                <div class="aud-progress-fill" id="fill_${s.id}_${mi}"></div>
+              </div>
+            </div>
+            <span class="aud-time" id="time_${s.id}_${mi}">0:00</span>
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="sample-card reveal" id="${s.id}" data-delay="${i * 80}">
+        <div class="sample-card-header">
+          <span class="sample-label">${s.label}</span>
+          <p class="sample-transcript">${s.transcript}</p>
         </div>
-      </div>
-
-      <audio controls class="audio-player" id="audio${i + 1}">
-        <source src="${s.audio}" type="audio/wav"/>
-        Your browser does not support audio.
-      </audio>
-
-      <div class="sample-transcript">${s.transcript}</div>
-    </div>
-  `).join('');
+        <div class="sample-card-body">
+          <div class="sample-video-col">
+            <div class="sample-media">
+              <video class="sample-video" id="vid_${s.id}"
+                src="${s.video}" muted playsinline preload="auto"
+                aria-label="Ultrasound video for ${s.label}">
+              </video>
+              <div class="video-overlay" id="overlay_${s.id}">
+                <svg class="play-icon" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="1.2"
+                    fill="currentColor" fill-opacity="0.15"/>
+                  <path d="M10 8.5l6 3.5-6 3.5V8.5z" fill="currentColor"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="sample-audio-col">
+            ${audioRows}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
 
   document.getElementById('samplesGrid').innerHTML = cards;
 
-  // Wire up sync for each pair
-  data.items.forEach((_, i) => initSampleSync(i + 1));
-}
-
-function initSampleSync(n) {
-  const audio = document.getElementById(`audio${n}`);
-  const video = document.getElementById(`vid${n}`);
-  const overlay = document.getElementById(`overlay${n}`);
-  if (!audio || !video) return;
-
-  // Show/hide play icon overlay based on playback state
-  function updateOverlay() {
-    overlay.classList.toggle('hidden', !audio.paused);
-  }
-
-  // Audio is master — video follows
-  audio.addEventListener('play', () => {
-    video.currentTime = audio.currentTime;
-    video.play().catch(() => { });
-    updateOverlay();
+  // Seek each video to first frame as soon as metadata is ready
+  data.items.forEach((s) => {
+    const vid = document.getElementById(`vid_${s.id}`);
+    if (!vid) return;
+    const showFirstFrame = () => { if (vid.readyState >= 1) vid.currentTime = 0.1; };
+    if (vid.readyState >= 1) showFirstFrame();
+    else vid.addEventListener('loadedmetadata', showFirstFrame, { once: true });
   });
 
-  audio.addEventListener('pause', () => {
-    video.pause();
-    updateOverlay();
-  });
+  // Wire up interactivity per card
+  data.items.forEach((s) => {
+    const video = document.getElementById(`vid_${s.id}`);
+    const overlay = document.getElementById(`overlay_${s.id}`);
+    let activeAudio = null;
+    let activeFill = null;
+    let activeTime = null;
+    let activePlayBtn = null;
 
-  audio.addEventListener('seeked', () => {
-    video.currentTime = audio.currentTime;
-  });
-
-  // Drift correction: resync if gap exceeds 80 ms
-  audio.addEventListener('timeupdate', () => {
-    if (!audio.paused && Math.abs(video.currentTime - audio.currentTime) > 0.08) {
-      video.currentTime = audio.currentTime;
+    function fmtTime(t) {
+      const m = Math.floor(t / 60), s2 = Math.floor(t % 60);
+      return `${m}:${s2.toString().padStart(2, '0')}`;
     }
-  });
 
-  audio.addEventListener('ended', () => {
-    video.pause();
-    updateOverlay();
-  });
+    function setPlayIcon(btn, playing) {
+      if (!btn) return;
+      btn.querySelector('.icon-play').style.display = playing ? 'none' : '';
+      btn.querySelector('.icon-pause').style.display = playing ? '' : 'none';
+    }
 
-  // Clicking the overlay play button triggers audio (which pulls video)
-  overlay.addEventListener('click', () => {
-    if (audio.paused) audio.play();
-    else audio.pause();
-  });
+    data.models.forEach((m, mi) => {
+      const audio = document.getElementById(`aud_${s.id}_${mi}`);
+      const fill = document.getElementById(`fill_${s.id}_${mi}`);
+      const timeEl = document.getElementById(`time_${s.id}_${mi}`);
+      const playBtn = document.querySelector(`#ctrl_${s.id}_${mi} .aud-play-btn`);
 
-  // Initial overlay state
-  updateOverlay();
+      // Progress + time update
+      audio.addEventListener('timeupdate', () => {
+        if (audio.duration) {
+          fill.style.width = (audio.currentTime / audio.duration * 100) + '%';
+        }
+        timeEl.textContent = fmtTime(audio.currentTime);
+      });
+
+      audio.addEventListener('ended', () => {
+        setPlayIcon(playBtn, false);
+        overlay.classList.remove('hidden');
+        video.pause();
+      });
+
+      // Click progress bar to seek
+      document.querySelector(`#ctrl_${s.id}_${mi} .aud-progress-wrap`)
+        .addEventListener('click', (e) => {
+          if (!audio.duration) return;
+          const rect = e.currentTarget.getBoundingClientRect();
+          const ratio = (e.clientX - rect.left) / rect.width;
+          audio.currentTime = ratio * audio.duration;
+          if (video) video.currentTime = audio.currentTime;
+        });
+
+      // Play button
+      playBtn.addEventListener('click', () => {
+        if (!audio.paused) {
+          audio.pause();
+          setPlayIcon(playBtn, false);
+          video.pause();
+          overlay.classList.remove('hidden');
+          return;
+        }
+
+        // Pause any other active audio in this card
+        if (activeAudio && activeAudio !== audio) {
+          activeAudio.pause();
+          setPlayIcon(activePlayBtn, false);
+        }
+
+        activeAudio = audio;
+        activeFill = fill;
+        activeTime = timeEl;
+        activePlayBtn = playBtn;
+
+        audio.play();
+        setPlayIcon(playBtn, true);
+        overlay.classList.add('hidden');
+        // Sync video
+        video.currentTime = audio.currentTime;
+        video.play().catch(() => { });
+      });
+
+      // Keep video in sync (drift correction)
+      audio.addEventListener('timeupdate', () => {
+        if (!audio.paused && video &&
+          Math.abs(video.currentTime - audio.currentTime) > 0.08) {
+          video.currentTime = audio.currentTime;
+        }
+      });
+    });
+
+    // Overlay click: toggle last active audio, or first model
+    overlay.addEventListener('click', () => {
+      const target = activeAudio ||
+        document.getElementById(`aud_${s.id}_0`);
+      if (target.paused) {
+        target.dispatchEvent(new MouseEvent('click'));
+        document.querySelector(
+          `#ctrl_${s.id}_${activeAudio ? data.models.findIndex((_, i2) =>
+            document.getElementById(`aud_${s.id}_${i2}`) === activeAudio) : 0} .aud-play-btn`
+        )?.click();
+      } else {
+        target.pause();
+      }
+    });
+  });
 }
+
 
 function renderFooter(data) {
   document.getElementById('footerInner').innerHTML = `
